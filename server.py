@@ -4,6 +4,13 @@
 import socket
 import argparse
 from datetime import datetime
+import logging
+import sys
+from time import sleep
+
+# Setup logging file
+logging.basicConfig(filename=f"{datetime.now().strftime('%d%m%y-%H%M%S')}.log", encoding="UTF-8", level=logging.DEBUG)
+logging.getLogger().addHandler(logging.StreamHandler(sys.stdout))
 
 # Argument parser
 parser = argparse.ArgumentParser()
@@ -22,11 +29,11 @@ sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 # Bind socket and listen
 sock.bind((HOST, PORT))
 sock.listen(1)
-print(f"[ {datetime.now().strftime('%d/%m-%y %H:%M:%S:%f')} ] Listening on ({HOST}, {PORT})")
+logging.debug(f"[ {datetime.now().strftime('%d/%m-%y %H:%M:%S:%f')} ] Listening on ({HOST}, {PORT})")
 
 # Accept connection
 conn, addr = sock.accept()
-print(f"[ {datetime.now().strftime('%d/%m-%y %H:%M:%S:%f')} ] {addr} has connected")
+logging.debug(f"[ {datetime.now().strftime('%d/%m-%y %H:%M:%S:%f')} ] {addr} has connected")
 
 # Main loop
 while True:
@@ -34,12 +41,12 @@ while True:
         # Receive data and print it
         data = conn.recv(1024)
         if not data:
-            print(f"[ {datetime.now().strftime('%d/%m-%y %H:%M:%S:%f')} ] {addr} has disconnected")
+            logging.debug(f"[ {datetime.now().strftime('%d/%m-%y %H:%M:%S:%f')} ] {addr} has disconnected")
             break
         conn.send(bytes("Message Received", "UTF-8"))
-        print(f"[ {datetime.now().strftime('%d/%m-%y %H:%M:%S:%f')} ] {addr}> {data.decode('UTF-8')}")
+        logging.debug(f"[ {datetime.now().strftime('%d/%m-%y %H:%M:%S:%f')} ] {addr}> {data.decode('UTF-8')}")
     except KeyboardInterrupt:
-        print(f"[ {datetime.now().strftime('%d/%m-%y %H:%M:%S:%f')} ] CTRL-C is pressed, closing server")
+        logging.debug(f"[ {datetime.now().strftime('%d/%m-%y %H:%M:%S:%f')} ] CTRL-C is pressed, closing server")
         break
 
 conn.close()
